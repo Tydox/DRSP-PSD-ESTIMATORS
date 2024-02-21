@@ -123,13 +123,14 @@ b = cell2mat(realPxf.Numerator);
 [real_psd,omega] = freqz(b,a,512); %plot REAL PSD
 plot(omega,abs(real_psd),'r'); title("Real PSD"); xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
 %-----------------------%
+%INNA HERE IDK
 periodogram(xn,[])
 [psd_period,w] = periodogram(xn);
-plot(w,10*log(2*pi*psd_period)); hold on;
+plot(w,10*log10(2*pi*psd_period)); hold on;
 plot(omega,abs(real_psd),'r');  xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
 %-----------------------%
-
-
-
+figure;
+periodogram(xn,[]); hold on
+pwelch(xn)
 
 
