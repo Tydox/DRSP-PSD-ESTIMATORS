@@ -1,5 +1,6 @@
 clear;clc;close all;
 
+%NEED TO CHECK THAT THE FILTER IS STABLE - ALL POLES ARE IN UNIT CIRCLE
 
 %if user gives complex root, it must have its congujate!!! Z=a+jb & Z*=a-jb
 % User input: enter the poles and zeros as vectors
@@ -107,24 +108,26 @@ leg.Location = 'northwest';
 
 
 %-----------------------%
-
 sigma0 = 1;
 %synthesis x[n] using transfer function and w[n]
-Wn = rand(1,1000);
-xn = filter(b,a,Wn);
+Wn = rand(1,1024);
+N = 1000;
+xn = filter(b,a,Wn(1:N));
 plot(xn,'DisplayName','X[n]'); title("Synthisised signal X[n] using random noise W[n]")
 
 realPxf = sigma0 * sys_tf * conj(sys_tf)
 
-a = cell2mat(realPxf.Denominator)
-b = cell2mat(realPxf.Numerator)
+a = cell2mat(realPxf.Denominator);
+b = cell2mat(realPxf.Numerator);
 
 [real_psd,omega] = freqz(b,a,512); %plot REAL PSD
- plot(omega,abs(real_psd),'r');
-title("Real PSD"); xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
+plot(omega,abs(real_psd),'r'); title("Real PSD"); xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
 %-----------------------%
-
-
+periodogram(xn,[])
+[psd_period,w] = periodogram(xn);
+plot(w,10*log(2*pi*psd_period)); hold on;
+plot(omega,abs(real_psd),'r');  xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
+%-----------------------%
 
 
 
