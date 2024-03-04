@@ -48,6 +48,7 @@ else
         b = [buser,b]
         a = auser
     end
+   
     p = roots(a)
     z = roots(b)
 
@@ -60,7 +61,7 @@ end
 
 %-----------------------%
 % Create a transfer function using poles and zeros
-sys_zpk = zpk(z, p, 1,-1)
+sys_zpk = zpk(z, p, 1,-1,'variable','z^-1')
 % Convert to transfer function form
 sys_tf = tf(sys_zpk)
 %-----------------------%
@@ -110,27 +111,31 @@ leg.Location = 'northwest';
 %-----------------------%
 sigma0 = 1;
 %synthesis x[n] using transfer function and w[n]
-Wn = rand(1,1024);
-N = 1000;
+Wn = rand(1,10^5);
+N = 5*10^4;
 xn = filter(b,a,Wn(1:N));
 plot(xn,'DisplayName','X[n]'); title("Synthisised signal X[n] using random noise W[n]")
 
-realPxf = sigma0 * sys_tf * conj(sys_tf)
+sys_tf
 
-a = cell2mat(realPxf.Denominator);
-b = cell2mat(realPxf.Numerator);
+a = cell2mat(sys_tf.Denominator)
+b = cell2mat(sys_tf.Numerator)
 
-[real_psd,omega] = freqz(b,a,512); %plot REAL PSD
-plot(omega,abs(real_psd),'r'); title("Real PSD"); xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
+[Hz,omega] = freqz(b,a,512); %plot REAL PSD
+real_psd = sigma0*abs(Hz).^2;
+log_real_psd = 10*log10(real_psd);
+plot(omega,real_psd,'r'); title("Real PSD"); xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
 %-----------------------%
 %INNA HERE IDK
-periodogram(xn,[])
 [psd_period,w] = periodogram(xn);
 plot(w,10*log10(2*pi*psd_period)); hold on;
-plot(omega,abs(real_psd),'r');  xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
+plot(omega,log_real_psd,'r');  xlabel("\omega"); set(gca,'XTick',0:pi/2:2*pi); set(gca,'XTickLabel',{'0','\pi/2','\pi','1.5\pi','2\pi'}); 
+hold on;
 %-----------------------%
-figure;
-periodogram(xn,[]); hold on
-pwelch(xn)
-
-
+%periodogram(xn,[]); hold on
+L = 32;%window length
+D = L/2; %overlap amount
+K = (N-L)/D +1; %num of sub groups
+windowtype = hamming(L); %bartlett(L)
+[psd_welch,ww] = pwelch(xn,windowtype,D); 
+plot(ww,10*log10(2*pi*psd_welch),'g')
