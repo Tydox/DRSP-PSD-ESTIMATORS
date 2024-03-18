@@ -1,8 +1,8 @@
 # DRSP-PSD-ESTIMATORS
 Ch3 - PSD Estimators, extra project for DRSP course.
 
-#TODO
-1.Add picture with directions \ explanations
+# TODO
+1. Add picture with directions \ explanations
 
 2. Fix typos in app
 
